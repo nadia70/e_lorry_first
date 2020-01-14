@@ -280,7 +280,7 @@ class _PostDetailsState extends State<PostDetails> {
           ),
 
           new SingleChildScrollView(
-            padding: const EdgeInsets.all(30.0),
+            padding: const EdgeInsets.all(40.0),
             child: new Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[

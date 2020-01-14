@@ -38,6 +38,7 @@ class _ChatState extends State<Chat> {
   bool _isComposingMessage = false;
   final reference = Firestore.instance.collection('messages');
 
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -214,10 +215,10 @@ class ChatMessageListItem extends StatelessWidget {
               margin: const EdgeInsets.only(left: 8.0),
               child: new CircleAvatar(
                 child: new Text("${messageSnapshot.data['senderName']
-                    .substring(0,1)}".toUpperCase(),
+                    .substring(0,2)}",
                   style: new TextStyle(
                       fontWeight: FontWeight.w700,
-                      fontSize: 24.0,
+                      fontSize: 18.0,
                       color: Colors.white),),
               )),
         ],
@@ -233,8 +234,12 @@ class ChatMessageListItem extends StatelessWidget {
           new Container(
               margin: const EdgeInsets.only(right: 8.0),
               child: new CircleAvatar(
-                backgroundImage:
-                new NetworkImage("https://img.rawpixel.com/s3fs-private/rawpixel_images/website_content/pf-icon4-jir2064-por-l.jpg?auto=format&bg=transparent&con=3&cs=srgb&dpr=1&fm=jpg&ixlib=php-3.1.0&mark=rawpixel-watermark.png&markalpha=90&markpad=13&markscale=10&markx=25&q=75&usm=15&vib=3&w=1400&s=f909da6b77f2c546538c23b25d93379e"),
+                child: new Text("${messageSnapshot.data['senderName']
+                    .substring(0,2)}",
+                  style: new TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18.0,
+                      color: Colors.white),),
               )),
         ],
       ),

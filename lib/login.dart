@@ -114,6 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
     // Show login details in snackbar
     if(_email == name2 && _password == pw2 ) {
       _messaging.subscribeToTopic('puppies');
+      _messaging.subscribeToTopic('all');
       Navigator.of(context).push(new CupertinoPageRoute(
           builder: (BuildContext context) => new User()
       ));
@@ -125,6 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     if(_email == name1 && _password == pw1 ) {
       _messaging.subscribeToTopic('mech');
+      _messaging.subscribeToTopic('all');
       Navigator.of(context).push(new CupertinoPageRoute(
           builder: (BuildContext context) => new Mech()
       ));
@@ -135,6 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     if(_email == name3 && _password == pw3 ) {
       _messaging.subscribeToTopic('manager');
+      _messaging.subscribeToTopic('all');
       Navigator.of(context).push(new CupertinoPageRoute(
           builder: (BuildContext context) => new Manager()
       ));

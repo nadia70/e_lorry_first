@@ -46,7 +46,7 @@ export const newMessage = functions.firestore
       }
     };
 
-    return fcm.sendToTopic('manager' || 'user' || 'mech', message);
+    return fcm.sendToTopic('all', message);
   });
 
 const cors = require('cors')({ origin: true });
@@ -72,7 +72,7 @@ exports.sendDailyNotifications = functions.https.onRequest((request, response) =
                     }
                 };
                 promises
-                    .push(admin.messaging().sendToTopic('manager' || 'user', notificationContent));
+                    .push(admin.messaging().sendToTopic('manager' || 'puppies', notificationContent));
             });
             return Promise.all(promises);
         })

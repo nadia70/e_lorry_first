@@ -351,7 +351,7 @@ class _ServiceFormState extends State<ServiceForm> with SingleTickerProviderStat
           "Cargo": _cargo,
           "Painting": _painting,
           "Fuel Tank":_fueltank,
-          "padlocks":_padLock,
+          "Padlocks":_padLock,
         },
         "safety" : {
           "Life saver": _lifeSaver,
