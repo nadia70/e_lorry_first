@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_lorry/lpo.dart';
 import 'package:flutter/material.dart';
 
 class Requisition extends StatefulWidget {
@@ -515,6 +516,49 @@ class _RequisitionDetailState extends State<RequisitionDetail> {
                     ),
                   ),
                 ): new Offstage(),
+
+                widget.reqStatus != "Approved"?
+                new Card(
+                  child: new Container(
+                    margin: new EdgeInsets.only(left: 20.0, right: 20.0),
+                    child: new Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        new SizedBox(
+                          height: 10.0,
+                        ),
+
+                        MaterialButton(
+                          child: Text('Generate LPO',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontFamily: 'SFUIDisplay',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          color: Colors.white,
+                          elevation: 16.0,
+                          height: 50,
+                          textColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)
+                          ), onPressed: () {
+                          Navigator.of(context).push(new MaterialPageRoute(builder: (context)=> new lpoForm(
+
+                            itemName: widget.itemName,
+                            itemQuantity: widget.itemQuantity,
+                            itemNumber: widget.itemNumber,
+                            reqPrice:  widget.reqPrice,
+
+
+                          )));
+                        },
+                        ),
+                      ],
+                    ),
+                  ),
+                ): new Offstage(),
+
 
               ],
             ),
