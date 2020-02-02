@@ -231,7 +231,7 @@ class _lpoFormState extends State<lpoForm> {
                         ),
 
                         Padding(
-                          padding: const EdgeInsets.only(top: 12),
+                          padding: const EdgeInsets.all(0.0),
                           child: new Table(
                             border: TableBorder.all(),
                             defaultVerticalAlignment: TableCellVerticalAlignment.top,
