@@ -3334,6 +3334,7 @@ class _ServiceFormState extends State<ServiceForm> with SingleTickerProviderStat
                                         fontSize: 11
                                     )
                                 ),
+                                inputFormatters: [mask],
                                 validator: (val) =>
                                 val.isEmpty  ? 'Enter a valid value' : null,
                                 onSaved: (val) => _email = val,
@@ -3615,7 +3616,6 @@ class _ServiceFormState extends State<ServiceForm> with SingleTickerProviderStat
                                     fontFamily: 'SFUIDisplay'
                                 ),
                                 decoration: InputDecoration(
-                                    hintText: "01/01/2001",
                                     errorStyle: TextStyle(color: Colors.red),
                                     filled: true,
                                     fillColor: Colors.white.withOpacity(0.1),
@@ -3685,7 +3685,6 @@ class _ServiceFormState extends State<ServiceForm> with SingleTickerProviderStat
                                     fontFamily: 'SFUIDisplay'
                                 ),
                                 decoration: InputDecoration(
-                                    hintText: "01/01/2001",
                                     errorStyle: TextStyle(color: Colors.red),
                                     filled: true,
                                     fillColor: Colors.white.withOpacity(0.1),
@@ -3769,6 +3768,7 @@ class _ServiceFormState extends State<ServiceForm> with SingleTickerProviderStat
                                     fontSize: 11
                                 )
                             ),
+                            inputFormatters: [mask],
                             validator: (val) =>
                             val.isEmpty  ? 'Enter a valid value' : null,
                             onSaved: (val) => _date2 = val,

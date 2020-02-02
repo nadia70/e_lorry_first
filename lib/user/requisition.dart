@@ -517,7 +517,7 @@ class _RequisitionDetailState extends State<RequisitionDetail> {
                   ),
                 ): new Offstage(),
 
-                widget.reqStatus != "Approved"?
+                widget.reqStatus == "Approved"?
                 new Card(
                   child: new Container(
                     margin: new EdgeInsets.only(left: 20.0, right: 20.0),
