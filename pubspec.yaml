@@ -31,7 +31,6 @@ dependencies:
   dash_chat: ^1.0.10
   intl: any
   pdf: any
-  printing: ^3.0.1
   firebase_storage: ^3.0.0
   path_provider: ^1.4.0
 

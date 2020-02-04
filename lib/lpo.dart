@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:e_lorry/printing.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -15,7 +16,6 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pdf;
-import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
 
 const directoryName = 'lpo';
