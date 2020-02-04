@@ -110,7 +110,7 @@ class _UserState extends State<User> {
                   size: 20.0,
                 ),
               ),
-              title: new Text("Service"),
+              title: new Text("LPO"),
               onTap: (){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (context)=> new prevLpo()));
               },

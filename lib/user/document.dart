@@ -30,9 +30,12 @@ class _prevLpoState extends State<prevLpo> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: StreamBuilder<QuerySnapshot>(
-          stream: collectionReference.snapshots(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("LPO"),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+          stream: collectionReference.orderBy('date', descending: true).snapshots(),
           builder: (context, snapshot){
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
@@ -49,13 +52,10 @@ class _prevLpoState extends State<prevLpo> {
                   return Card(
                     child: ListTile(
                       title: Text(doc.data['Item']),
-                      subtitle: Text(doc.data['date']),
+                      subtitle: Text(doc.data['date'].toString()),
                       trailing: new Container(
                         margin: const EdgeInsets.all(10.0),
                         padding: const EdgeInsets.all(3.0),
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.red[900])
-                        ),
                         child: IconButton(icon: Icon(Icons.arrow_forward_ios), onPressed: null),
                       ),
                       onTap: () async {
@@ -70,6 +70,7 @@ class _prevLpoState extends State<prevLpo> {
                           itemQuantity: doc.data['Quantity'],
                           itemNumber: doc.data['lpoNumber'],
                           reqPrice:  doc.data['Amount'],
+                          reqDate:  doc.data['date'],
                           reqSupplier: doc.data['Supplier'],
                           appby: doc.data['Approved by'],
                           prepby: doc.data['prepared by'],

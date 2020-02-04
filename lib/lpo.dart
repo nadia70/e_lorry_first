@@ -74,9 +74,13 @@ class _lpoFormState extends State<lpoForm> {
   TextEditingController approve = new TextEditingController();
   String name2;
   String pw2;
-  int prevLpo;
+  String prevLpo;
   int Lpo;
   String name;
+  String lpoString;
+  DateTime now = DateTime.now();
+  String formattedDate;
+  int prev;
 
   CollectionReference collectionReference =
   Firestore.instance.collection("requisition");
@@ -85,7 +89,7 @@ class _lpoFormState extends State<lpoForm> {
 
   _updateData() async {
     await Firestore.instance
-        .collection('request')
+        .collection('requisition')
         .document(widget.docID)
         .updateData({'status': "LPO GENERATED"});
   }
@@ -101,7 +105,9 @@ class _lpoFormState extends State<lpoForm> {
     {
       setState(() {
         prevLpo = document['lpoNumber'];
-        Lpo = prevLpo++;
+        prev = int.parse(prevLpo);
+        Lpo = prev+1;
+        lpoString = Lpo.toString();
       });
     });
     }
@@ -133,6 +139,22 @@ class _lpoFormState extends State<lpoForm> {
 
 
   Future<void> _printScreen() async {
+    Firestore.instance.runTransaction((Transaction transaction) async {
+      CollectionReference reference = Firestore.instance.collection('lpo');
+
+      await reference.add({
+        "Item": widget.itemName,
+        "lpoNumber": lpoString,
+        "Quantity": widget.itemQuantity,
+        "Amount": widget.reqPrice,
+        "date" : DateFormat(' dd MMM yyyy').format(now),
+        "prepared by" : name,
+        "Approved by" : widget.appby,
+        "Supplier" : widget.reqSupplier,
+
+      });
+    });
+
     _updateData();
     final RenderRepaintBoundary boundary =
     _renderObjectKey.currentContext.findRenderObject();
@@ -141,21 +163,6 @@ class _lpoFormState extends State<lpoForm> {
     await im.toByteData(format: ui.ImageByteFormat.rawRgba);
     print('Print Screen ${im.width}x${im.height} ...');
 
-    Firestore.instance.runTransaction((Transaction transaction) async {
-      CollectionReference reference = Firestore.instance.collection('lpo');
-
-      await reference.add({
-        "Item": widget.itemNumber,
-        "lpoNumber": widget.itemName,
-        "Quantity": widget.itemQuantity,
-        "Amount": widget.reqPrice,
-        "date" : DateTime.now(),
-        "prepared by" : name,
-        "Approved by" : widget.appby,
-        "Supplier" : widget.reqSupplier,
-
-      });
-    });
 
 
     final bool result =
@@ -224,12 +231,12 @@ class _lpoFormState extends State<lpoForm> {
 
   initState() {
     getStringValue();
+    getAccounts();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    DateTime now = DateTime.now();
     String formattedDate = DateFormat(' dd MMM yyyy').format(now);
     return Scaffold(
       body: new Stack(
@@ -365,7 +372,7 @@ class _lpoFormState extends State<lpoForm> {
                                         fontWeight: FontWeight.w700),
                                   ),
                                   new Text(
-                                    "4931",
+                                    lpoString,
                                     style: new TextStyle(
                                         fontSize: 11.0,
                                         fontWeight: FontWeight.w700),
@@ -706,12 +713,7 @@ class _lpoFormState extends State<lpoForm> {
                                       fontWeight: FontWeight.w700,
                                       decoration: TextDecoration.underline,),
                                   ),
-                                  new Text(
-                                    "4931",
-                                    style: new TextStyle(
-                                        fontSize: 11.0,
-                                        fontWeight: FontWeight.w700),
-                                  ),
+
                                 ],
                               ),
                             ],
