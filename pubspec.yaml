@@ -29,7 +29,7 @@ dependencies:
   mask_text_input_formatter: ^1.0.5
   shared_preferences: ^0.4.3
   dash_chat: ^1.0.10
-  intl: ^0.16.1
+  intl: any
   pdf: ^1.4.1
   printing: any
   firebase_storage: ^3.0.0
