@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_formfield/dropdown_formfield.dart';
+import 'package:e_lorry/user/document.dart';
 import 'package:e_lorry/user/post_trip.dart';
 import 'package:e_lorry/user/requisition.dart';
 import 'package:e_lorry/user/truck_service.dart';
@@ -44,14 +45,19 @@ class _UserState extends State<User> {
       drawer: new Drawer(
         child: new Column(
           children: <Widget>[
-            new UserAccountsDrawerHeader(
-              accountEmail: Text("Accounts"),
-              currentAccountPicture: new CircleAvatar(backgroundColor: Colors.white,
-                child: new Icon(Icons.person,
-                  color: Colors.green,
-                  size: 20.0,
-                ),)
-              ,),
+            DrawerHeader(
+              child: Column(
+                children: <Widget>[
+                  Image.asset(
+                    "assets/logo.png",
+                    fit: BoxFit.contain,
+                    height: 100.0,
+                    width: 200.0,
+                  ),
+                  Text("Accounts"),
+                ],
+              ),
+            ),
 
             new Divider(),
             new ListTile(
@@ -92,6 +98,21 @@ class _UserState extends State<User> {
               title: new Text("Service"),
               onTap: (){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (context)=> new truckService()));
+              },
+            ),
+
+            new Divider(),
+
+            new ListTile(
+              trailing: new CircleAvatar(
+                child: new Icon(Icons.settings,
+                  color: Colors.white,
+                  size: 20.0,
+                ),
+              ),
+              title: new Text("Service"),
+              onTap: (){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (context)=> new prevLpo()));
               },
             ),
 

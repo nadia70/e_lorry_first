@@ -73,6 +73,8 @@ class _RequisitionState extends State<Requisition> {
                                 reqSupplier: doc.data["supplier"],
                                 reqComment: doc.data["comment"],
                                 reqStatus: doc.data["status"],
+                                approvedby: doc.data["approved by"],
+                                ID: doc.documentID,
 
 
                               )));
@@ -95,6 +97,8 @@ class _RequisitionState extends State<Requisition> {
 class RequisitionDetail extends StatefulWidget {
 
   String reqComment;
+  String ID;
+  String approvedby;
   String itemName;
   String itemQuantity;
   String itemNumber;
@@ -111,6 +115,8 @@ class RequisitionDetail extends StatefulWidget {
   RequisitionDetail({
 
     this.reqStatus,
+    this.ID,
+    this.approvedby,
     this.reqComment,
     this.itemName,
     this.itemQuantity,
@@ -476,7 +482,7 @@ class _RequisitionDetailState extends State<RequisitionDetail> {
                   height: 10.0,
                 ),
 
-                widget.reqStatus != "Manager Comment"?
+                widget.reqStatus == "Manager Comment"?
                 new Card(
                   child: new Container(
                     margin: new EdgeInsets.only(left: 20.0, right: 20.0),
@@ -549,6 +555,10 @@ class _RequisitionDetailState extends State<RequisitionDetail> {
                             itemQuantity: widget.itemQuantity,
                             itemNumber: widget.itemNumber,
                             reqPrice:  widget.reqPrice,
+                            reqSupplier: widget.reqSupplier,
+                            appby: widget.approvedby,
+                            docID: widget.ID,
+
 
 
                           )));

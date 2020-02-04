@@ -1,27 +1,100 @@
-
-import 'dart:io';
-
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/rendering.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import 'package:intl/intl.dart';
+import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pdf;
 import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-const directoryName = 'lpo';
+class prevLpo extends StatefulWidget {
+  @override
+  _prevLpoState createState() => _prevLpoState();
+}
 
-class lpoForm extends StatefulWidget {
+class _prevLpoState extends State<prevLpo> {
+  CollectionReference collectionReference =
+  Firestore.instance.collection("lpo");
+
+  DocumentSnapshot _currentDocument;
+
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: StreamBuilder<QuerySnapshot>(
+          stream: collectionReference.snapshots(),
+          builder: (context, snapshot){
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: Text("Loading... Please wait"),
+              );
+            }if (snapshot.hasData == false){
+              return Center(
+                child: Text("There are no pending requests"),);
+            }else{
+              return ListView.builder(
+                itemCount: snapshot.data.documents.length,
+                itemBuilder: (context, index) {
+                  var doc = snapshot.data.documents[index];
+                  return Card(
+                    child: ListTile(
+                      title: Text(doc.data['Item']),
+                      subtitle: Text(doc.data['date']),
+                      trailing: new Container(
+                        margin: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(3.0),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.red[900])
+                        ),
+                        child: IconButton(icon: Icon(Icons.arrow_forward_ios), onPressed: null),
+                      ),
+                      onTap: () async {
+                        setState(() {
+                          _currentDocument = doc;
+                        });
+
+                        Navigator.of(context).push(new MaterialPageRoute(builder: (context)=> new lpoDetail(
+
+
+                          itemName: doc.data['Item'],
+                          itemQuantity: doc.data['Quantity'],
+                          itemNumber: doc.data['lpoNumber'],
+                          reqPrice:  doc.data['Amount'],
+                          reqSupplier: doc.data['Supplier'],
+                          appby: doc.data['Approved by'],
+                          prepby: doc.data['prepared by'],
+
+
+                        )));
+                      },
+                    ),
+                  );
+
+                },
+              );
+
+            }
+          }),
+
+    );
+
+  }
+}
+
+
+class lpoDetail extends StatefulWidget {
   String appby;
+  String prepby;
   String reqComment;
   String itemName;
   String itemQuantity;
@@ -35,12 +108,11 @@ class lpoForm extends StatefulWidget {
   String reqPrice;
   String reqSupplier;
   String reqStatus;
-  String docID;
 
-  lpoForm({
+  lpoDetail({
 
     this.appby,
-    this.docID,
+    this.prepby,
     this.reqStatus,
     this.reqComment,
     this.itemName,
@@ -59,10 +131,10 @@ class lpoForm extends StatefulWidget {
 
 
   @override
-  _lpoFormState createState() => _lpoFormState();
+  _lpoDetailState createState() => _lpoDetailState();
 }
 
-class _lpoFormState extends State<lpoForm> {
+class _lpoDetailState extends State<lpoDetail> {
   final _renderObjectKey = GlobalKey<ScaffoldState>();
   TextEditingController lpoNumber = new TextEditingController();
   TextEditingController company = new TextEditingController();
@@ -78,32 +150,19 @@ class _lpoFormState extends State<lpoForm> {
   int Lpo;
   String name;
 
-  CollectionReference collectionReference =
-  Firestore.instance.collection("requisition");
-
-  DocumentSnapshot _currentDocument;
-
-  _updateData() async {
-    await Firestore.instance
-        .collection('request')
-        .document(widget.docID)
-        .updateData({'status': "LPO GENERATED"});
-  }
-
-
 
   Future getAccounts() async {
-   Firestore.instance.collection('lpo')
+    Firestore.instance.collection('lpo')
         .orderBy("date", descending: true).limit(1) // new entries first, date is one the entries btw
         .snapshots()
-       .listen((QuerySnapshot querySnapshot){
-    querySnapshot.documents.forEach((document)
-    {
-      setState(() {
-        prevLpo = document['lpoNumber'];
-        Lpo = prevLpo++;
+        .listen((QuerySnapshot querySnapshot){
+      querySnapshot.documents.forEach((document)
+      {
+        setState(() {
+          prevLpo = document['lpoNumber'];
+          Lpo = prevLpo++;
+        });
       });
-    });
     }
     );
   }
@@ -133,30 +192,13 @@ class _lpoFormState extends State<lpoForm> {
 
 
   Future<void> _printScreen() async {
-    _updateData();
+
     final RenderRepaintBoundary boundary =
     _renderObjectKey.currentContext.findRenderObject();
     final ui.Image im = await boundary.toImage();
     final ByteData bytes =
     await im.toByteData(format: ui.ImageByteFormat.rawRgba);
     print('Print Screen ${im.width}x${im.height} ...');
-
-    Firestore.instance.runTransaction((Transaction transaction) async {
-      CollectionReference reference = Firestore.instance.collection('lpo');
-
-      await reference.add({
-        "Item": widget.itemNumber,
-        "lpoNumber": widget.itemName,
-        "Quantity": widget.itemQuantity,
-        "Amount": widget.reqPrice,
-        "date" : DateTime.now(),
-        "prepared by" : name,
-        "Approved by" : widget.appby,
-        "Supplier" : widget.reqSupplier,
-
-      });
-    });
-
 
     final bool result =
     await Printing.layoutPdf(onLayout: (PdfPageFormat format) {
@@ -183,21 +225,21 @@ class _lpoFormState extends State<lpoForm> {
   }
 
   void _showQRandPrint() {
-      _getWidgetImage().then((img) async {
-        final pdf = new PdfDocument();
-        final page = new PdfPage(pdf, pageFormat: PdfPageFormat(75.0, 100.0));
-        final g = page.getGraphics();
+    _getWidgetImage().then((img) async {
+      final pdf = new PdfDocument();
+      final page = new PdfPage(pdf, pageFormat: PdfPageFormat(75.0, 100.0));
+      final g = page.getGraphics();
 
-        PdfImage image = new PdfImage(
-            pdf,
-            image: img,
-            width: 75,
-            height: 100);
-        g.drawImage(image, 0.0, 0.0);
+      PdfImage image = new PdfImage(
+          pdf,
+          image: img,
+          width: 75,
+          height: 100);
+      g.drawImage(image, 0.0, 0.0);
 
-        await Printing.layoutPdf(
-            onLayout: (PdfPageFormat format) async => pdf.save());
-      });
+      await Printing.layoutPdf(
+          onLayout: (PdfPageFormat format) async => pdf.save());
+    });
 
 
   }
@@ -365,7 +407,7 @@ class _lpoFormState extends State<lpoForm> {
                                         fontWeight: FontWeight.w700),
                                   ),
                                   new Text(
-                                    "4931",
+                                    widget.itemNumber,
                                     style: new TextStyle(
                                         fontSize: 11.0,
                                         fontWeight: FontWeight.w700),
@@ -393,16 +435,16 @@ class _lpoFormState extends State<lpoForm> {
                                       new Text(
                                         "To: ${widget.reqSupplier}",
                                         style: new TextStyle(
-                                            fontSize: 11.0,
-                                            fontWeight: FontWeight.w700,
+                                          fontSize: 11.0,
+                                          fontWeight: FontWeight.w700,
                                           decoration: TextDecoration.underline,),
                                       ),
 
                                       new Text(
-                                        "Date:${formattedDate}",
+                                        widget.reqDate,
                                         style: new TextStyle(
-                                            fontSize: 11.0,
-                                            fontWeight: FontWeight.w700,
+                                          fontSize: 11.0,
+                                          fontWeight: FontWeight.w700,
                                           decoration: TextDecoration.underline,),
                                       ),
                                     ],
@@ -412,7 +454,7 @@ class _lpoFormState extends State<lpoForm> {
                               Column(
                                 children: <Widget>[
                                   new Text(
-                                    "Date:${formattedDate}",
+                                    widget.reqDate,
                                     style: new TextStyle(
                                       fontSize: 11.0,
                                       fontWeight: FontWeight.w700,
@@ -449,9 +491,9 @@ class _lpoFormState extends State<lpoForm> {
                                           "QUANTITY",
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 5.0,),
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 5.0,),
                                         ),
                                       ),
                                     ),
@@ -468,7 +510,7 @@ class _lpoFormState extends State<lpoForm> {
                                           "UNIT",
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                              color: Colors.black,
+                                            color: Colors.black,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 5.0,),
                                         ),
@@ -487,7 +529,7 @@ class _lpoFormState extends State<lpoForm> {
                                           "DESCRIPTION",
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                              color: Colors.black,
+                                            color: Colors.black,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 5.0,),
                                         ),
@@ -527,8 +569,8 @@ class _lpoFormState extends State<lpoForm> {
                                           widget.itemQuantity,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 6.0,),
+                                            color: Colors.black,
+                                            fontSize: 6.0,),
                                         ),
                                       ),
                                     ),
@@ -544,8 +586,8 @@ class _lpoFormState extends State<lpoForm> {
                                           "1",
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 6.0,),
+                                            color: Colors.black,
+                                            fontSize: 6.0,),
                                         ),
                                       ),
                                     ),
@@ -561,8 +603,8 @@ class _lpoFormState extends State<lpoForm> {
                                           widget.itemName,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 6.0,),
+                                            color: Colors.black,
+                                            fontSize: 6.0,),
                                         ),
                                       ),
                                     ),
@@ -679,7 +721,7 @@ class _lpoFormState extends State<lpoForm> {
                                   Column(
                                     children: <Widget>[
                                       new Text(
-                                        "Prepared by: ${name}",
+                                        "Prepared by: ${widget.prepby}",
                                         style: new TextStyle(
                                           fontSize: 11.0,
                                           fontWeight: FontWeight.w700,
@@ -700,18 +742,13 @@ class _lpoFormState extends State<lpoForm> {
                               Column(
                                 children: <Widget>[
                                   new Text(
-                                    "Date:${formattedDate}",
+                                    "Date:${widget.reqDate}",
                                     style: new TextStyle(
                                       fontSize: 11.0,
                                       fontWeight: FontWeight.w700,
                                       decoration: TextDecoration.underline,),
                                   ),
-                                  new Text(
-                                    "4931",
-                                    style: new TextStyle(
-                                        fontSize: 11.0,
-                                        fontWeight: FontWeight.w700),
-                                  ),
+
                                 ],
                               ),
                             ],
@@ -744,106 +781,4 @@ class _lpoFormState extends State<lpoForm> {
       ),
     );
   }
-}
-
-Widget productTextField(
-    {String textTitle,
-      String textHint,
-      double height,
-      TextEditingController controller,
-      TextInputType textType}) {
-  textTitle == null ? textTitle = "Enter Title" : textTitle;
-  textHint == null ? textHint = "Enter Hint" : textHint;
-  height == null ? height = 50.0 : height;
-  //height !=null
-
-  return Row(
-    //mainAxisAlignment: MainAxisAlignment.start,
-    mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: <Widget>[
-      new Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: new Text(
-          textTitle,
-          style:
-          new TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
-        ),
-      ),
-      new Flexible(
-        fit: FlexFit.loose,
-        child: new Padding(
-        padding: const EdgeInsets.only(left: 5.0, right: 5.0),
-        child: new Container(
-          height: height,
-          decoration: new BoxDecoration(
-              color: Colors.white,
-              border: new Border.all(color: Colors.white),
-              borderRadius: new BorderRadius.all(new Radius.circular(4.0))),
-          child: new Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-            child: new TextField(
-              controller: controller,
-              keyboardType: textType == null ? TextInputType.text : textType,
-              maxLines: 4,
-              decoration: new InputDecoration(
-
-                  border: InputBorder.none, hintText: textHint),
-            ),
-          ),
-        ),
-      ),)
-    ],
-  );
-}
-
-Widget sign(
-    {String textTitle,
-      String textHint,
-      double height,
-      TextEditingController controller,
-      TextInputType textType}) {
-  textTitle == null ? textTitle = "Enter Title" : textTitle;
-  textHint == null ? textHint = "Enter Hint" : textHint;
-  height == null ? height = 50.0 : height;
-  //height !=null
-
-  return Column(
-    //mainAxisAlignment: MainAxisAlignment.start,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisSize: MainAxisSize.min,
-    children: <Widget>[
-      new Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: new Text(
-          textTitle,
-          style:
-          new TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
-        ),
-      ),
-      Flexible(
-        fit: FlexFit.loose,
-        child: new Padding(
-          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-          child: new Container(
-            height: height,
-            decoration: new BoxDecoration(
-                color: Colors.white,
-                border: new Border.all(color: Colors.white),
-                borderRadius: new BorderRadius.all(new Radius.circular(4.0))),
-            child: new Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-              child: new TextField(
-                controller: controller,
-                keyboardType: textType == null ? TextInputType.text : textType,
-                maxLines: 4,
-                decoration: new InputDecoration(
-                    border: InputBorder.none, hintText: textHint),
-              )
-            ),
-          ),
-        ),
-      )
-    ],
-  );
 }

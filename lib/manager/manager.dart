@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_lorry/user/document.dart';
 import 'package:e_lorry/user/post_trip.dart';
 import 'package:e_lorry/user/truck_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:e_lorry/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../chat.dart';
 
@@ -45,14 +47,19 @@ class _ManagerState extends State<Manager> {
       drawer: new Drawer(
         child: new Column(
           children: <Widget>[
-            new UserAccountsDrawerHeader(
-              accountEmail: Text("Manager"),
-              currentAccountPicture: new CircleAvatar(backgroundColor: Colors.white,
-                child: new Icon(Icons.person,
-                  color: Colors.green,
-                  size: 20.0,
-                ),)
-              ,),
+            DrawerHeader(
+              child: Column(
+                children: <Widget>[
+                  Image.asset(
+                    "assets/logo.png",
+                    fit: BoxFit.contain,
+                    height: 100.0,
+                    width: 200.0,
+                  ),
+                  Text("Manager"),
+                ],
+              ),
+            ),
 
             new Divider(),
             new ListTile(
@@ -79,6 +86,21 @@ class _ManagerState extends State<Manager> {
               title: new Text("Service"),
               onTap: (){
                 Navigator.of(context).push(new MaterialPageRoute(builder: (context)=> new truckService()));
+              },
+            ),
+
+            new Divider(),
+
+            new ListTile(
+              trailing: new CircleAvatar(
+                child: new Icon(Icons.settings,
+                  color: Colors.white,
+                  size: 20.0,
+                ),
+              ),
+              title: new Text("Service"),
+              onTap: (){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (context)=> new prevLpo()));
               },
             ),
 
@@ -242,6 +264,14 @@ class _ApprovalState extends State<Approval> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   String _comment;
 
+  getStringValue() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      currentUserEmail = prefs.getString('user');
+    });
+
+  }
+
   void _approveCommand() {
     //get state of our Form
     final form = formKey.currentState;
@@ -251,13 +281,20 @@ class _ApprovalState extends State<Approval> {
 
   }
 
+  @override
+  initState() {
+    getStringValue();
+    super.initState();
+  }
+
   _updateStatus() async {
     await Firestore.instance
         .collection('requisition')
         .document(widget.itemID)
         .updateData({
       'status': "Approved",
-      'comment': "Approved"
+      'comment': "Approved",
+      'approved by': currentUserEmail,
         });
   }
 
