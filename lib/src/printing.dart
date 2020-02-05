@@ -68,7 +68,7 @@ mixin Printing {
         final _PrintJob job = _printJobs[call.arguments['job']];
         job.onHtmlRendered.completeError(call.arguments['error']);
         break;
-      
+
     }
   }
 

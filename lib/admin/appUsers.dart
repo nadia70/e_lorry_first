@@ -122,7 +122,7 @@ class _addUserState extends State<addUser> {
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          content: new Text("Your request has been sent"),
+          content: new Text("User has been created"),
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
@@ -140,7 +140,7 @@ class _addUserState extends State<addUser> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Truck"),
+        title: Text("Add New user"),
       ),
       body: SingleChildScrollView(
         child: SafeArea(
