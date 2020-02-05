@@ -99,7 +99,7 @@ class _addUserState extends State<addUser> {
     final form = formKey.currentState;
 
     Firestore.instance.runTransaction((Transaction transaction) async {
-      CollectionReference reference = Firestore.instance.collection('userUID');
+      CollectionReference reference = Firestore.instance.collection('userID');
 
       await reference.add({
         'name': _name,
