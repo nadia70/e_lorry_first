@@ -69,6 +69,7 @@ class _MechState extends State<Mech> {
                                 driverNumber: snapshot.data[index].data["phone"],
                                 driverID: snapshot.data[index].data["ID"],
                                 turnboy: snapshot.data[index].data["turnboy"],
+                                truckType: snapshot.data[index].data["type"],
 
 
                               )));

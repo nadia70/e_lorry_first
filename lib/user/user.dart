@@ -165,8 +165,7 @@ class _ItemsState extends State<Items> {
   Widget build(BuildContext context) {
     return Container(
       child: StreamBuilder<QuerySnapshot>(
-          stream: collectionReference.where("status", isEqualTo:
-          "pending").snapshots(),
+          stream: collectionReference.orderBy("date", descending: true).snapshots(),
           builder: (context, snapshot){
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
@@ -204,6 +203,7 @@ class _ItemsState extends State<Items> {
                               itemName: doc.data["Item"],
                               itemQuantity: doc.data["Quantity"],
                               itemNumber: doc.data["Truck"],
+                              truckType: doc.data["tType"],
 
 
                             )));
@@ -227,9 +227,12 @@ class Requests extends StatefulWidget {
   String itemName;
   String itemQuantity;
   String itemNumber;
+  String truckType;
+
 
   Requests({
 
+    this.truckType,
     this.itemName,
     this.itemQuantity,
     this.itemNumber,
@@ -256,6 +259,7 @@ class _RequestsState extends State<Requests> {
   String _brand;
   String _price;
   String _supplier;
+  Map<String,dynamic> price;
 
   var mask = new MaskTextInputFormatter(mask: '##/##/####', filter: { "#": RegExp(r'[0-9]') });
 
@@ -324,6 +328,35 @@ class _RequestsState extends State<Requests> {
 
 
 
+  _getPrevPrice() async {
+
+    var query = Firestore.instance.collection("consumable").where("type", isEqualTo: widget.truckType ).where("item", isEqualTo: widget.itemName );
+    query.getDocuments().then((querySnapshot) {
+      if (querySnapshot.documents.length == 0) {
+        final snack = SnackBar(
+          content: Text('invallid login details'),
+        );
+        scaffoldKey.currentState.showSnackBar(snack);
+      } else {
+        querySnapshot.documents.forEach((document)
+        async {
+
+          setState(() {
+            price = Map<String, dynamic>.from(document.data["price"]);
+          });
+
+        });
+      }
+    });
+  }
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getPrevPrice();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -332,6 +365,7 @@ class _RequestsState extends State<Requests> {
 
       body: new SingleChildScrollView(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -339,6 +373,7 @@ class _RequestsState extends State<Requests> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         new Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -418,11 +453,49 @@ class _RequestsState extends State<Requests> {
                             ),
                           ],
                         ),
+
+                        new Text(
+                          "Previous price",
+                          style: new TextStyle(
+                              fontSize: 14.0,
+                              color: Colors.indigo,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        price == null ? Container() :
+                        new Flexible(
+                          fit: FlexFit.loose,
+                          child: SizedBox(
+                            height: 200.0,
+                            child: new ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: price.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                String key = price.keys.elementAt(index);
+                                return new Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    new ListTile(
+                                      title: new Text("$key",style: TextStyle(fontSize: 10),),
+                                      subtitle: new Text("${price[key]}" ,style: TextStyle(fontSize: 8),),
+                                    ),
+                                    new Divider(
+                                      height: 2.0,
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+
+                        ),
+
                       ],
                     ),
                   ),
                 ),
               ),
+
+
 
               new Form(
                 key: formKey,

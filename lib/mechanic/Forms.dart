@@ -16,10 +16,12 @@ class ServiceForm extends StatefulWidget {
   String driverID;
   String turnboy;
   String itemDescription;
+  String truckType;
 
   ServiceForm({
 
     this.truckNumber,
+    this.truckType,
     this.driverName,
     this.driverNumber,
     this.driverID,
@@ -398,6 +400,7 @@ class _ServiceFormState extends State<ServiceForm> with SingleTickerProviderStat
                     builder: (BuildContext context) => new  matRequest(
                       truckNo: widget.truckNumber,
                       driverName: widget.driverName,
+                      truckType: widget.truckType,
 
                     )
                 )
@@ -3787,7 +3790,9 @@ class _ServiceFormState extends State<ServiceForm> with SingleTickerProviderStat
                       Padding(
                         padding: EdgeInsets.fromLTRB(70, 10, 70, 0),
                         child: MaterialButton(
-                          onPressed: _saveService,
+                          onPressed: () {
+                            _saveService();
+                          },
                           child: Text('SAVE FORM',
                             style: TextStyle(
                               fontSize: 15,

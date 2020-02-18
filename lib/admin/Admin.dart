@@ -60,7 +60,7 @@ class _AdminState extends State<Admin> {
                                   driverID: snapshot.data[index].data["ID"],
                                   turnboy: snapshot.data[index].data["turnboy"],
                                   itemID: snapshot.data[index].documentID,
-
+                                  truckType: snapshot.data[index].data["type"],
 
                                 )));
                               },
@@ -110,9 +110,11 @@ class TruckDetails extends StatefulWidget {
   String driverID;
   String turnboy;
   String itemDescription;
+  String truckType;
 
   TruckDetails({
 
+    this.truckType,
     this.itemID,
     this.truckNumber,
     this.driverName,
@@ -132,6 +134,7 @@ class _TruckDetailsState extends State<TruckDetails> {
   String _driverNo;
   String _driverID;
   String _turnBoy;
+  String _truckType;
 
 
 
@@ -163,6 +166,7 @@ class _TruckDetailsState extends State<TruckDetails> {
       'phone': _driverNo,
       'ID': _driverID,
       'turnboy': _turnBoy,
+      'turnboy': _truckType,
 
     }).then((result) =>
 
@@ -399,6 +403,7 @@ class _addTruckState extends State<addTruck> {
   String _driverNo2;
   String _driverID2;
   String _turnBoy2;
+  String _truckType;
   void _submitCommand() {
     //get state of our Form
     final form = formKey.currentState;
@@ -427,6 +432,8 @@ class _addTruckState extends State<addTruck> {
         'phone': _driverNo2,
         'ID': _driverID2,
         'turnboy': _turnBoy2,
+        'type': _truckType,
+
       });
     }).then((result) =>
 
@@ -617,8 +624,36 @@ class _addTruckState extends State<addTruck> {
                             ),
                           ),
 
+                          SizedBox(
+                            height: 60.0,
+                            child:  new StreamBuilder<QuerySnapshot>(
+                                stream: Firestore.instance.collection("truckType").snapshots(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) return new Text("Please wait");
+                                  var length = snapshot.data.documents.length;
+                                  DocumentSnapshot ds = snapshot.data.documents[length - 1];
+                                  return new DropdownButton(
+                                    items: snapshot.data.documents.map((
+                                        DocumentSnapshot document) {
+                                      return DropdownMenuItem(
+                                          value: document.data["type"],
+                                          child: new Text(document.data["type"]));
+                                    }).toList(),
+                                    value: _truckType,
+                                    onChanged: (value) {
+                                      print(value);
 
+                                      setState(() {
+                                        _truckType = value;
+                                      });
+                                    },
+                                    hint: new Text("Select Item"),
+                                    style: TextStyle(color: Colors.black),
 
+                                  );
+                                }
+                            ),
+                          ),
 
                         ],
                       ),
